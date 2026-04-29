@@ -100,7 +100,22 @@
   .search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:11px 16px 11px 38px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;outline:none}
   .search-input:focus{border-color:var(--accent)}
   .search-icon{position:absolute;left:34px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--text3);pointer-events:none}
-  /* Recurrent badge */
+  /* Swipe to delete */
+  .swipe-wrap{position:relative;overflow:hidden}
+  .swipe-item{transition:transform .25s ease;touch-action:pan-y}
+  .swipe-actions{position:absolute;right:0;top:0;bottom:0;display:flex;align-items:center;gap:6px;padding:0 12px;background:transparent;pointer-events:none;opacity:0;transition:opacity .2s}
+  .swipe-actions.visible{opacity:1;pointer-events:auto}
+  .swipe-del{background:var(--red);border:none;border-radius:10px;color:white;font-size:13px;font-weight:600;padding:8px 14px;cursor:pointer;white-space:nowrap}
+  .swipe-edit{background:var(--accent);border:none;border-radius:10px;color:white;font-size:13px;font-weight:600;padding:8px 14px;cursor:pointer;white-space:nowrap}
+  /* Frequent expenses */
+  .freq-grid{display:flex;flex-wrap:wrap;gap:8px;padding:0 0 4px}
+  .freq-chip{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:7px;cursor:pointer;transition:border-color .2s,background .2s;max-width:100%}
+  .freq-chip:active{background:var(--surface3)}
+  .freq-chip-icon{font-size:16px;flex-shrink:0}
+  .freq-chip-info{min-width:0}
+  .freq-chip-label{font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .freq-chip-amount{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+  .freq-chip-del{margin-left:4px;background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:0 2px;flex-shrink:0}
   .recur-badge{font-size:9px;background:rgba(124,111,247,.2);color:var(--accent2);border-radius:6px;padding:2px 6px;margin-left:6px;vertical-align:middle}
   /* income row */
   .income-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
@@ -120,6 +135,7 @@
   <div class="header">
     <div class="header-top">
       <span class="app-title">Mis Gastos</span>
+      <span id="sync-status" style="font-size:11px;color:var(--green);opacity:0;transition:opacity .5s;flex:1;text-align:center"></span>
       <div style="display:flex;align-items:center;gap:6px">
         <button class="mnav" onclick="changeHomeMonth(-1)">‹</button>
         <span class="month-pill" id="current-month-label">—</span>
@@ -222,6 +238,22 @@
     <div id="budget-settings"></div>
     <div style="height:14px"></div>
 
+    <div class="section-title">Sincronización en la nube</div>
+    <div class="settings-section">
+      <div class="settings-row">
+        <div><div class="settings-label">BIN ID</div><div style="font-size:11px;color:var(--text3);margin-top:2px">De JSONBin.io</div></div>
+        <input class="budget-input" type="text" id="jbin-id-input" placeholder="ID..." style="width:140px;font-size:13px;text-align:left" onchange="saveJbinConfig()">
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-label">API Key</div><div style="font-size:11px;color:var(--text3);margin-top:2px">Master key de JSONBin</div></div>
+        <input class="budget-input" type="password" id="jbin-key-input" placeholder="Key..." style="width:140px;font-size:13px;text-align:left" onchange="saveJbinConfig()">
+      </div>
+      <div class="settings-row">
+        <div><div class="settings-label">Estado</div><div style="font-size:11px;color:var(--text3);margin-top:2px" id="jbin-status">Sin configurar</div></div>
+        <button onclick="testJbin()" style="background:rgba(124,111,247,.15);border:1px solid rgba(124,111,247,.3);border-radius:8px;padding:6px 14px;color:var(--accent2);font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer">Probar</button>
+      </div>
+    </div>
+
     <div class="section-title">Copia de seguridad</div>
     <div class="settings-section">
       <div class="settings-row">
@@ -276,6 +308,10 @@
         <input class="form-input amount-input" type="number" inputmode="decimal" id="input-amount" placeholder="0,00" step="0.01" min="0">
       </div>
     </div>
+    <div class="form-group" id="freq-section">
+      <label class="form-label">Frecuentes</label>
+      <div class="freq-grid" id="freq-grid-add"></div>
+    </div>
     <div class="form-group"><label class="form-label">Categoría</label></div>
     <div class="cat-grid" id="cat-grid"></div>
     <div class="form-group">
@@ -287,11 +323,13 @@
       <input class="form-input" type="date" id="input-date">
     </div>
     <button class="btn-primary" id="btn-submit">Guardar gasto</button>
+    <button id="btn-submit-another" style="width:calc(100% - 48px);margin:10px 24px 0;background:rgba(124,111,247,.12);border:1px solid rgba(124,111,247,.3);border-radius:12px;padding:14px;color:var(--accent2);font-family:'DM Sans',sans-serif;font-size:16px;cursor:pointer">Guardar y añadir otro</button>
+    <button id="btn-save-freq" style="width:calc(100% - 48px);margin:8px 24px 0;background:none;border:none;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;padding:8px">☆ Guardar como frecuente</button>
     <div style="height:8px"></div>
   </div>
 </div>
 
-<!-- EDIT SHEET -->
+
 <div class="sheet hidden" id="edit-sheet">
   <div class="sheet-inner">
     <div class="sheet-handle"></div>
@@ -380,6 +418,63 @@ const DONUT_COLORS=['#7c6ff7','#34d399','#f87171','#fbbf24','#60a5fa','#f472b6',
 
 function load(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+
+// ── JSONBIN ──
+const JBIN_URL = 'https://api.jsonbin.io/v3/b/';
+let jbinId  = load('jbin_id','');
+let jbinKey = load('jbin_key','');
+let syncTimeout = null;
+
+async function jbinLoad() {
+  if (!jbinId || !jbinKey) return false;
+  try {
+    const res = await fetch(`${JBIN_URL}${jbinId}/latest`, {
+      headers: {'X-Master-Key': jbinKey, 'X-Bin-Meta': 'false'}
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    if (data.expenses)   { expenses   = data.expenses.map(e=>({...e,amount:Math.round(Number(e.amount)*100)/100})); saveAndSync('expenses',expenses); }
+    if (data.budgets)    { budgets    = data.budgets;    saveAndSync('budgets',budgets); }
+    if (data.recurrents) { recurrents = data.recurrents; saveAndSync('recurrents',recurrents); }
+    if (data.salary !== undefined) { salary = data.salary; saveAndSync('salary',salary); }
+    if (data.pagasExtra) { pagasExtra = data.pagasExtra; saveAndSync('pagasExtra',pagasExtra); }
+    return true;
+  } catch(e) { return false; }
+}
+
+function jbinSave() {
+  if (!jbinId || !jbinKey) return;
+  clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(async () => {
+    try {
+      await fetch(`${JBIN_URL}${jbinId}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json','X-Master-Key':jbinKey},
+        body: JSON.stringify({expenses, budgets, recurrents, salary, pagasExtra})
+      });
+      showSyncStatus('✓ Sincronizado');
+    } catch(e) {
+      showSyncStatus('⚠ Sin conexión');
+    }
+  }, 1500); // debounce 1.5s
+}
+
+function showSyncStatus(msg) {
+  let el = document.getElementById('sync-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.opacity = '1';
+  setTimeout(()=>el.style.opacity='0', 2500);
+}
+
+// Override save to also sync to JSONBin
+const _save = save;
+function saveAndSync(k, v) {
+  _save(k, v);
+  const syncKeys = ['expenses','budgets','recurrents','salary','pagasExtra'];
+  if (syncKeys.includes(k)) jbinSave();
+}
+
 
 let expenses   = load('expenses',[]).map(e=>({...e, amount: Math.round(Number(e.amount)*100)/100}));
 let budgets    = load('budgets',{});
@@ -660,6 +755,17 @@ function renderStatsCurrent() {
 // ── SETTINGS ──
 function renderSettings() {
   document.getElementById('salary-input').value=salary||'';
+  // JSONBin config
+  document.getElementById('jbin-id-input').value = jbinId || '';
+  document.getElementById('jbin-key-input').value = jbinKey || '';
+  const statusEl = document.getElementById('jbin-status');
+  if (jbinId && jbinKey) {
+    statusEl.textContent = '✓ Configurado';
+    statusEl.style.color = 'var(--green)';
+  } else {
+    statusEl.textContent = 'Sin configurar — introduce BIN ID y API Key';
+    statusEl.style.color = 'var(--text3)';
+  }
   document.getElementById('total-entries').textContent=expenses.length+' gastos';
 
   // Paga extra for current month shown
@@ -699,12 +805,12 @@ function renderSettings() {
     </div>`).join('');
 }
 
-function saveSalary(v){salary=parseFloat(v)||0;save('salary',salary)}
+function saveSalary(v){salary=parseFloat(v)||0;saveAndSync('salary',salary)}
 function savePagaExtra(v){
   const n=new Date(), key=`${n.getFullYear()}-${n.getMonth()}`;
-  pagasExtra[key]=parseFloat(v)||0;save('pagasExtra',pagasExtra);
+  pagasExtra[key]=parseFloat(v)||0;saveAndSync('pagasExtra',pagasExtra);
 }
-function saveBudget(id,v){budgets[id]=parseFloat(v)||0;save('budgets',budgets)}
+function saveBudget(id,v){budgets[id]=parseFloat(v)||0;saveAndSync('budgets',budgets)}
 
 // ── RECURRENTS ──
 let selectedRecCatVar=null;
@@ -725,8 +831,8 @@ function deleteRecurrent(id){
     Object.keys(localStorage).filter(k=>k.startsWith(`rec_deleted_${id}_`)).forEach(k=>localStorage.removeItem(k));
     recurrents=recurrents.filter(r=>String(r.id)!==String(id));
     expenses=expenses.filter(e=>String(e.recurrentId)!==String(id));
-    save('recurrents',recurrents);
-    save('expenses',expenses);
+    saveAndSync('recurrents',recurrents);
+    saveAndSync('expenses',expenses);
     renderSettings();
     renderHome();
   });
@@ -749,7 +855,7 @@ document.getElementById('btn-save-rec').addEventListener('click',()=>{
     startMonth: Number(startMonth),
   };
   recurrents.push(rec);
-  save('recurrents',recurrents);
+  saveAndSync('recurrents',recurrents);
   closeRecurrent();
   renderSettings();
   toast('✓ Recurrente guardado');
@@ -791,7 +897,7 @@ document.getElementById('btn-submit').addEventListener('click',()=>{
   if(!amount||amount<=0){document.getElementById('input-amount').focus();return}
   if(!selectedCat) selectedCat=CATEGORIES[0].id;
   expenses.push({id:'e_'+Date.now(),amount,cat:selectedCat,desc:document.getElementById('input-desc').value.trim(),date:document.getElementById('input-date').value||new Date().toISOString().split('T')[0]});
-  save('expenses',expenses);
+  saveAndSync('expenses',expenses);
   closeSheet();
   renderHome();
   toast('✓ Gasto guardado');
@@ -833,7 +939,7 @@ document.getElementById('btn-save-edit').addEventListener('click',()=>{
   const idx=expenses.findIndex(e=>String(e.id)===String(editingId));
   if(idx===-1)return;
   expenses[idx]={...expenses[idx],amount,cat:selectedEditCat||expenses[idx].cat,desc:document.getElementById('edit-desc').value.trim(),date:document.getElementById('edit-date').value};
-  save('expenses',expenses);
+  saveAndSync('expenses',expenses);
   closeEdit();
   renderHome();
   toast('✓ Gasto actualizado');
@@ -890,7 +996,7 @@ function importData(event){
       if(data.recurrents)recurrents=data.recurrents;
       if(data.salary)salary=data.salary;
       if(data.pagasExtra)pagasExtra={...pagasExtra,...data.pagasExtra};
-      save('expenses',expenses);save('budgets',budgets);save('recurrents',recurrents);save('salary',salary);save('pagasExtra',pagasExtra);
+      saveAndSync('expenses',expenses);saveAndSync('budgets',budgets);saveAndSync('recurrents',recurrents);saveAndSync('salary',salary);saveAndSync('pagasExtra',pagasExtra);
       const s=document.getElementById('import-status');
       s.textContent=`✓ Importados ${data.expenses.length} gastos`;s.style.display='block';
       setTimeout(()=>s.style.display='none',3000);
@@ -928,15 +1034,47 @@ function diagnose() {
   alert(msg);
 }
 
+function saveJbinConfig() {
+  jbinId  = document.getElementById('jbin-id-input').value.trim();
+  jbinKey = document.getElementById('jbin-key-input').value.trim();
+  save('jbin_id', jbinId);
+  save('jbin_key', jbinKey);
+}
+
+async function testJbin() {
+  const statusEl = document.getElementById('jbin-status');
+  statusEl.textContent = 'Conectando...';
+  statusEl.style.color = 'var(--text3)';
+  saveJbinConfig();
+  const ok = await jbinLoad();
+  if (ok) {
+    statusEl.textContent = '✓ Conectado y sincronizado';
+    statusEl.style.color = 'var(--green)';
+    renderHome();
+  } else {
+    statusEl.textContent = '✗ Error — revisa ID y Key';
+    statusEl.style.color = 'var(--red)';
+  }
+}
+
 // ── INIT ──
 // Clean up stale rec_ keys from deleted recurrents
 const validRecIds = new Set(recurrents.map(r => r.id));
 Object.keys(localStorage).filter(k => k.match(/^rec_rec_\d+_\d+_\d+$/)).forEach(k => {
-  const parts = k.split('_'); // ['rec','rec','id','y','m']
+  const parts = k.split('_');
   const rid = `rec_${parts[2]}`;
   if (!validRecIds.has(rid)) localStorage.removeItem(k);
 });
-renderHome();
+
+// Load from JSONBin if configured, otherwise use localStorage
+(async () => {
+  if (jbinId && jbinKey) {
+    showSyncStatus('↓ Cargando...');
+    await jbinLoad();
+    showSyncStatus('✓ Sincronizado');
+  }
+  renderHome();
+})();
 </script>
 <!-- CONFIRM MODAL -->
 <div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:999;align-items:center;justify-content:center;padding:32px">
