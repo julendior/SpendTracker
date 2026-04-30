@@ -20,7 +20,7 @@
     --fs-xs:0.75em;--fs-sm:0.875em;--fs-base:1em;--fs-lg:1.125em;--fs-xl:1.5em;--fs-hero:2.75em;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;width:100%;overscroll-behavior:none}
+  html,body{height:100dvh;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;width:100%;overscroll-behavior:none}
   body{position:fixed;top:0;left:0;right:0;bottom:0;overflow:hidden}
   .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .4s cubic-bezier(.32,.72,0,1),opacity .4s}
   .screen.hidden{transform:translateX(100%);opacity:0;pointer-events:none}
@@ -98,7 +98,6 @@
   .empty-icon{font-size:3em;margin-bottom:0.75em}
   .empty-text{font-size:var(--fs-base)}
   
-  .toast.show{transform:translateX(-50%) translateY(0)}
   .search-wrap{padding:0 0 0.5em;position:relative}
   .search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:0.875em;padding:0.75em 1em 0.75em 2.5em;color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;outline:none}
   .search-input:focus{border-color:var(--accent)}
@@ -226,7 +225,8 @@
   .empty{text-align:center;padding:44px 24px;color:var(--text3)}
   .empty-icon{font-size:44px;margin-bottom:10px}
   .empty-text{font-size:14px}
-  .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,34px) + 80px);left:50%;transform:translateX(-50%) translateY(120px);background:var(--green);color:#0a2a1a;font-size:14px;font-weight:600;padding:10px 20px;border-radius:20px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;z-index:100}
+  .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,34px) + 80px);left:50%;transform:translateX(-50%);background:var(--green);color:#0a2a1a;font-size:14px;font-weight:600;padding:10px 20px;border-radius:20px;white-space:nowrap;z-index:100;opacity:0;pointer-events:none;transition:opacity .3s}
+  .toast.show{opacity:1;pointer-events:auto}
   /* Search */
   .search-wrap{padding:0 20px 10px;position:relative}
   .search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:11px 16px 11px 38px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;outline:none}
@@ -261,7 +261,7 @@
 </style>
 </head>
 <body>
-<div id="phone-wrap" style="position:relative;width:100%;height:100%">
+<div id="phone-wrap" style="position:relative;width:100%;height:100dvh">
 
 <!-- HOME -->
 <div class="screen" id="screen-home">
@@ -527,7 +527,7 @@
   </div>
 </div>
 
-<div class="toast" id="toast">✓ Guardado</div>
+<div class="toast" id="toast"></div>
 
 <script>
 const CATEGORIES = [
