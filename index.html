@@ -20,12 +20,12 @@
     --fs-xs:0.75em;--fs-sm:0.875em;--fs-base:1em;--fs-lg:1.125em;--fs-xl:1.5em;--fs-hero:2.75em;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:clamp(14px,4.0.5em,16px);width:100%;overscroll-behavior:none}
-  html{height:100%}
-  body{min-height:100dvh;display:flex;flex-direction:column}
-  .screen{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .4s cubic-bezier(.32,.72,0,1),opacity .4s;overflow:hidden}
+  html,body{height:100dvh;overflow:hidden;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;width:100%;position:fixed;overscroll-behavior:none}
+  .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .4s cubic-bezier(.32,.72,0,1),opacity .4s}
   .screen.hidden{transform:translateX(100%);opacity:0;pointer-events:none}
-  .header{padding:calc(var(--safe-top) + .5em) 1em .75em}
+  .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 var(--pad)}
+  .scroll::-webkit-scrollbar{display:none}
+  .header{padding:calc(env(safe-area-inset-top,44px) + 0.5em) 1em 0.75em}
   .header-top{display:flex;justify-content:space-between;align-items:center}
   .app-title{font-size:var(--fs-xs);font-weight:600;color:var(--text3);letter-spacing:.1em;text-transform:uppercase}
   .month-pill{background:var(--surface2);border:1px solid var(--border);border-radius:1.25em;padding:0.375em 0.875em;font-size:var(--fs-sm);font-weight:500;color:var(--text2);min-width:5.5em;text-align:center}
@@ -56,11 +56,11 @@
   .bar-track{height:0.25em;background:var(--surface3);border-radius:0.125em;overflow:hidden}
   .bar-fill{height:100%;border-radius:0.125em;background:var(--accent);transition:width .6s cubic-bezier(.34,1.56,.64,1)}
   .bar-fill.over{background:var(--red)}.bar-fill.warn{background:var(--amber)}
-  .bottom-nav{padding:20.125em var(--pad) calc(var(--safe-bottom) + 0.5em);display:flex;justify-content:space-around;border-top:1px solid var(--border);background:rgba(10,10,15,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+  .bottom-nav{padding:0.5em 1em calc(env(safe-area-inset-bottom,34px) + 0.5em);display:flex;justify-content:space-around;border-top:1px solid var(--border);background:rgba(10,10,15,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
   .nav-btn{display:flex;flex-direction:column;align-items:center;gap:0.25em;background:none;border:none;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:20.125em;letter-spacing:.04em;padding:0.25em 1em;border-radius:1.25em;cursor:pointer;transition:color .2s;white-space:nowrap}
   .nav-btn.active{color:var(--accent2)}
   .nav-icon{font-size:1.5em;line-height:1}
-  .fab{position:absolute;bottom:calc(var(--safe-bottom) + 12em);right:var(--pad);width:11em;height:11em;border-radius:1em;background:var(--accent);border:none;color:white;font-size:1.75em;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0.5em 2em rgba(124,111,247,.4);transition:transform .15s}
+  .fab{position:absolute;bottom:calc(var(--safe-bottom) + 18vw);right:var(--pad);width:14vw;height:14vw;border-radius:4vw;background:var(--accent);border:none;color:white;font-size:7vw;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2vw 8vw rgba(99,102,241,.4);transition:transform .15s}
   .fab:active{transform:scale(.92)}
   .sheet{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:opacity .3s;z-index:10}
   .sheet.hidden{opacity:0;pointer-events:none}
@@ -155,8 +155,7 @@
   .btn-edit{background:rgba(124,111,247,.15);color:var(--accent2)}
   .btn-del{background:rgba(248,113,113,.15);color:var(--red)}
 
-  .screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .4s cubic-bezier(.32,.72,0,1),opacity .4s}
-  .screen.hidden{transform:translateX(100%);opacity:0;pointer-events:none}
+
   .header{padding:calc(var(--safe-top) + 12px) 24px 16px}
   .header-top{display:flex;justify-content:space-between;align-items:center}
   .app-title{font-size:13px;font-weight:500;color:var(--text3);letter-spacing:.08em;text-transform:uppercase}
