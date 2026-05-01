@@ -18,17 +18,25 @@
 
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent }
 
-  html { height: 100% }
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+  }
 
   body {
     font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
     color: var(--text);
-    height: 100%;
     width: 100%;
+  }
+
+  #phone-wrap {
     display: flex;
     flex-direction: column;
-    inset: 0;
+    width: 100%;
+    /* Set by JS to exact window.innerHeight */
+    height: 100vh;
   }
 
   /* ── SCREENS ── */
@@ -227,11 +235,16 @@
 
   /* ── DESKTOP ── */
   @media (min-width:600px) {
-    body { align-items:center; justify-content:center; background:#111; height:100vh; overflow:hidden; min-height:unset; max-width:390px; margin:0 auto; border-radius:40px; box-shadow:0 30px 80px rgba(0,0,0,.9); position:relative }
+    body { display:flex; align-items:center; justify-content:center; background:#111; height:100vh; overflow:hidden }
+    #phone-wrap { width:390px; height:844px !important; border-radius:40px; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.9); flex-shrink:0 }
+    .sheet { position:absolute }
+    .toast { position:absolute }
+    #confirm-modal { position:absolute !important }
   }
 </style>
 </head>
 <body>
+<div id="phone-wrap">
 
 
 <!-- HOME -->
@@ -1157,6 +1170,16 @@ async function testJbin() {
 }
 
 // ── INIT ──
+// iOS webapp reports wrong innerHeight on first load.
+// Wait for it to settle then fix height.
+function fixHeight() {
+  document.getElementById('phone-wrap').style.height = window.innerHeight + 'px';
+}
+fixHeight();
+// Run again after short delay - iOS sometimes needs this
+setTimeout(fixHeight, 100);
+setTimeout(fixHeight, 500);
+window.addEventListener('resize', fixHeight);
 
 // Clean up stale rec_ keys from deleted recurrents
 const validRecIds = new Set(recurrents.map(r => r.id));
@@ -1206,5 +1229,6 @@ document.getElementById('btn-confirm-cancel').addEventListener('click', confirmC
 </script>
 
 
+</div><!-- /phone-wrap -->
 </body>
 </html>
