@@ -1162,6 +1162,13 @@ async function testJbin() {
 }
 
 // ── INIT ──
+// Fix iOS webapp height issue - use actual window height
+function fixHeight() {
+  const h = window.innerHeight;
+  document.getElementById('phone-wrap').style.height = h + 'px';
+}
+fixHeight();
+window.addEventListener('resize', fixHeight);
 // Clean up stale rec_ keys from deleted recurrents
 const validRecIds = new Set(recurrents.map(r => r.id));
 Object.keys(localStorage).filter(k => k.match(/^rec_rec_\d+_\d+_\d+$/)).forEach(k => {
