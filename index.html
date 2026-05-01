@@ -1170,16 +1170,16 @@ async function testJbin() {
 }
 
 // ── INIT ──
-// iOS webapp reports wrong innerHeight on first load.
-// Wait for it to settle then fix height.
 function fixHeight() {
-  document.getElementById('phone-wrap').style.height = window.innerHeight + 'px';
+  // In iOS webapp mode, use visualViewport if available, otherwise screen.availHeight
+  const h = window.visualViewport ? window.visualViewport.height : screen.availHeight;
+  document.getElementById('phone-wrap').style.height = h + 'px';
 }
 fixHeight();
-// Run again after short delay - iOS sometimes needs this
-setTimeout(fixHeight, 100);
-setTimeout(fixHeight, 500);
-window.addEventListener('resize', fixHeight);
+setTimeout(fixHeight, 300);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', fixHeight);
+}
 
 // Clean up stale rec_ keys from deleted recurrents
 const validRecIds = new Set(recurrents.map(r => r.id));
