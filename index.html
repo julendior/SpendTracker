@@ -18,18 +18,19 @@
 
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent }
 
-  html { height: 100% }
+  html {
+    height: -webkit-fill-available;
+    height: 100dvh;
+  }
 
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--bg);
     color: var(--text);
-    /* Fill the full viewport including safe areas */
-    min-height: 100%;
-    min-height: -webkit-fill-available;
     width: 100%;
     overflow: hidden;
     position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
     inset: 0;
   }
 
@@ -240,7 +241,7 @@
 </style>
 </head>
 <body>
-<div id="phone-wrap" style="position:relative;width:100%;height:100dvh">
+<div id="phone-wrap" style="position:relative;width:100%;height:100%;height:-webkit-fill-available">
 
 <!-- HOME -->
 <div class="screen" id="screen-home">
