@@ -35,7 +35,6 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    /* Set by JS to exact window.innerHeight */
     height: 100vh;
   }
 
@@ -119,11 +118,8 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     flex-shrink: 0;
-    /* Push content above home indicator */
-    padding-top: 16px;
-    padding-bottom: 20px;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 16px 20px 20px;
+    margin-top: auto;
   }
   .nav-btn { display:flex; flex-direction:column; align-items:center; gap:3px; background:none; border:none; color:var(--text3); font-family:'DM Sans',sans-serif; font-size:10px; padding:4px 16px; cursor:pointer; transition:color .2s }
   .nav-btn.active { color:var(--accent2) }
@@ -669,6 +665,7 @@ function showScreen(name) {
   document.getElementById('screen-'+name).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('nav-'+name)?.classList.add('active');
+  document.getElementById('fab').style.display = name === 'home' ? 'flex' : 'none';
   if(name==='home')renderHome();
   if(name==='stats')renderStats();
   if(name==='settings')renderSettings();
@@ -1170,19 +1167,6 @@ async function testJbin() {
 }
 
 // ── INIT ──
-// iOS webapp: set height once after render, ignore all future resize events (keyboard etc)
-let appHeightSet = false;
-function setAppHeight() {
-  if (appHeightSet) return;
-  const h = window.innerHeight;
-  if (h > 200) { // sanity check
-    document.getElementById('phone-wrap').style.height = h + 'px';
-    appHeightSet = true;
-  }
-}
-setAppHeight();
-setTimeout(setAppHeight, 50);
-setTimeout(setAppHeight, 200);
 
 // Clean up stale rec_ keys from deleted recurrents
 const validRecIds = new Set(recurrents.map(r => r.id));
