@@ -18,32 +18,28 @@
 
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent }
 
-  html {
-    height: -webkit-fill-available;
-    height: 100dvh;
-  }
+  html, body { height: 100% }
 
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--bg);
     color: var(--text);
+    min-height: 100dvh;
     width: 100%;
-    overflow: hidden;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
     inset: 0;
   }
 
   /* ── SCREENS ── */
   .screen {
-    position: absolute;
-    inset: 0;
-    display: flex;
+    display: none;
+    flex: 1;
     flex-direction: column;
     background: var(--bg);
-    transition: transform .4s cubic-bezier(.32,.72,0,1), opacity .4s;
+    min-height: 0;
   }
-  .screen.hidden { transform: translateX(100%); opacity: 0; pointer-events: none }
+  .screen.active { display: flex }
 
   /* ── HEADER ── */
   .header {
@@ -141,7 +137,7 @@
   .fab:active { transform:scale(.92) }
 
   /* ── SHEETS ── */
-  .sheet { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end; background:rgba(0,0,0,.6); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); transition:opacity .3s; z-index:10 }
+  .sheet { position:fixed; inset:0; display:flex; flex-direction:column; justify-content:flex-end; background:rgba(0,0,0,.6); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); transition:opacity .3s; z-index:10 }
   .sheet.hidden { opacity:0; pointer-events:none }
   .sheet-inner {
     background: var(--surface);
@@ -210,7 +206,7 @@
 
   /* ── TOAST ── */
   .toast {
-    position: absolute;
+    position: fixed;
     bottom: 88px;
     left: 50%;
     transform: translateX(-50%);
@@ -231,7 +227,7 @@
 
   /* ── DESKTOP ── */
   @media (min-width:600px) {
-    body { display:flex; align-items:center; justify-content:center; background:#111; position:static; height:100vh; overflow:hidden }
+    body { display:flex; align-items:center; justify-content:center; background:#111; height:100vh; overflow:hidden; min-height:unset }
     #phone-wrap { width:390px; height:844px; border-radius:40px; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.9); position:relative; flex-shrink:0 }
     .screen { border-radius:0 }
     .sheet  { position:absolute }
@@ -241,10 +237,10 @@
 </style>
 </head>
 <body>
-<div id="phone-wrap" style="position:relative;width:100%;height:100%;height:-webkit-fill-available">
+<div id="phone-wrap" style="display:flex;flex-direction:column;flex:1;min-height:0;width:100%">
 
 <!-- HOME -->
-<div class="screen" id="screen-home">
+<div class="screen active" id="screen-home">
   <div class="header">
     <div class="header-top">
       <span class="app-title">Expense Tracker</span>
@@ -289,7 +285,7 @@
 </div>
 
 <!-- STATS -->
-<div class="screen hidden" id="screen-stats">
+<div class="screen" id="screen-stats">
   <div class="header">
     <div class="header-top"><span class="app-title">Expense Tracker</span></div>
     <div style="font-size:22px;font-weight:600;margin-top:10px">Estadísticas</div>
@@ -321,7 +317,7 @@
 </div>
 
 <!-- SETTINGS -->
-<div class="screen hidden" id="screen-settings">
+<div class="screen" id="screen-settings">
   <div class="header"><div class="header-top"><span class="app-title">Expense Tracker</span></div></div>
   <div class="scroll" style="padding:0 24px">
     <div style="font-size:22px;font-weight:600;margin-bottom:22px">Ajustes</div>
@@ -665,8 +661,8 @@ function changeHomeMonth(dir) {
 
 // ── SCREEN NAV ──
 function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));
-  document.getElementById('screen-'+name).classList.remove('hidden');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>{
     const label=name==='home'?'Inicio':name==='stats'?'Stats':'Ajustes';
