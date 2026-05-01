@@ -1170,16 +1170,19 @@ async function testJbin() {
 }
 
 // ── INIT ──
-function fixHeight() {
-  // In iOS webapp mode, use visualViewport if available, otherwise screen.availHeight
-  const h = window.visualViewport ? window.visualViewport.height : screen.availHeight;
-  document.getElementById('phone-wrap').style.height = h + 'px';
+// iOS webapp: set height once after render, ignore all future resize events (keyboard etc)
+let appHeightSet = false;
+function setAppHeight() {
+  if (appHeightSet) return;
+  const h = window.innerHeight;
+  if (h > 200) { // sanity check
+    document.getElementById('phone-wrap').style.height = h + 'px';
+    appHeightSet = true;
+  }
 }
-fixHeight();
-setTimeout(fixHeight, 300);
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', fixHeight);
-}
+setAppHeight();
+setTimeout(setAppHeight, 50);
+setTimeout(setAppHeight, 200);
 
 // Clean up stale rec_ keys from deleted recurrents
 const validRecIds = new Set(recurrents.map(r => r.id));
